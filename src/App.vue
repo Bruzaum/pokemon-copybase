@@ -17,7 +17,7 @@
             sm="4"
             md="3"
             lg="2"
-            xl="1"
+            xl="2"
               v-for="pokemon in filtered_pokemons" 
               :key="pokemon.name"
             >
@@ -40,7 +40,6 @@
 
     <v-dialog v-model="show_dialog" width="500">
       <v-card v-if="selected_pokemon">
-        {{ get_evolutions(selected_pokemon.id) }}
         <v-container>
           <v-row class="d-flex flex-column justify-center align-center">
             <v-col cols="4">
@@ -61,8 +60,25 @@
               <v-chip class="details-pokemon white--text" color="indigo lighten-3" label>Special Defense: {{ selected_pokemon.stats[4].base_stat }}<br></v-chip>
               <v-chip class="details-pokemon white--text" color="light-green lighten-3" label>Speed: {{ selected_pokemon.stats[5].base_stat }}<br></v-chip>
             </v-col>
+    
+            <v-col cols="8" class="d-flex justify-center align-center">
+              <h2>Evoluções</h2>
+            </v-col>
+            <h1 class="hide">{{ get_evolutions(get_evolution_id(selected_pokemon.id)) }}</h1>
+            <v-col cols="10" class="d-flex justify-center align-center">
+              <v-chip 
+                class="details-pokemon white--text" 
+                color="purple lighten-3" 
+                label 
+                v-for="item in pokemon_evolution"
+                :key="item.name" 
+              >
+                {{ item }}
+              </v-chip>
+            </v-col>
           </v-row>
         </v-container>
+          
       </v-card>
     </v-dialog>
   </v-app>
@@ -82,11 +98,13 @@ export default {
       search: "",
       show_dialog: false,
       selected_pokemon: null,
+      pokemon_evolution: [],
+      evolution_id: null,
     };
   },
 
   mounted () {
-    axios.get("https://pokeapi.co/api/v2/pokemon?limit=1000").then((response) => {
+    axios.get("https://pokeapi.co/api/v2/pokemon?limit=500").then((response) => {
       this.pokemons = response.data.results
     });
   },
@@ -98,6 +116,12 @@ export default {
     get_name(pokemon){
       return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
     },
+    get_evolution_id(id) {
+      axios.get(`https://pokeapi.co/api/v2/pokemon-species/${id}`).then((response) => {
+        this.evolution_id = response.data.evolution_chain.url.split("/")[6]
+      });
+      return this.evolution_id
+    },
     show_pokemon(id){
       axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`).then((response) => {
         this.selected_pokemon = response.data
@@ -106,8 +130,22 @@ export default {
     },
     get_evolutions(id){
       axios.get(`https://pokeapi.co/api/v2/evolution-chain/${id}`).then((response) => {
-        return response.data
+        let evoChain = [];
+
+        function getEvo(arr) {
+          if (arr[0].evolves_to.length > 0) {
+            evoChain.push(arr[0].species.name);
+            getEvo(arr[0].evolves_to);
+          } else {
+            evoChain.push(arr[0].species.name);
+            return 0;
+          }
+        }
+        getEvo([response.data.chain]);
+
+        this.pokemon_evolution = evoChain
       });
+      return this.pokemon_evolution
     }
   },
   computed:{
@@ -151,6 +189,9 @@ theme--light.v-chip:not(.v-chip--active) {
   margin-bottom: 30px;
 }
 
+.hide{
+  display: none;
+}
 
 .poke_name {
   margin-top: -30px;
