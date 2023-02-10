@@ -32,7 +32,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 * Javascript
 
 ## *DEMO*
-Você pode conferir como ficou esse projeto clicando no GIF abaixo:
+Você pode conferir como ficou esse projeto clicando no GIF abaixo: 
+
+
 [![GIF](https://github.com/Bruzaum/pokemon-copybase/blob/ace0e9efa949d70949b6d192ef1f8b4b79a78744/src/assets/Pokemon.gif)](https://pokemon-copybase.vercel.app/)
 
 # *Author*
