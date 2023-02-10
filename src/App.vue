@@ -1,22 +1,27 @@
 <template>
   <v-app>
+    <v-row class="d-flex justify-center pa-6 poke-logo">
+      <img src="./assets/Pokémon_logo.svg" alt="Pokémon Logo" width="100%" height="100%">
+    </v-row>
     <v-container>
-      <v-card>
         <v-container>
           <v-text-field
             v-model="search"
             label="Pesquisar"
-            placeholder="Bulbasaur"
+            placeholder="Pikachu"
             solo
           ></v-text-field>
-
           <v-row>
             <v-col 
-              cols="2" 
+            cols="6"
+            sm="4"
+            md="3"
+            lg="2"
+            xl="1"
               v-for="pokemon in filtered_pokemons" 
               :key="pokemon.name"
             >
-              <v-card>
+              <v-card @click="show_pokemon(get_id(pokemon))">
                 <v-container>
                   <v-row class="mx-0 d-flex justify-center">
                     <img 
@@ -25,15 +30,41 @@
                       width="85%"
                     >
                   </v-row>
-                  <h2 class="text-center">{{ get_name(pokemon) }}</h2>
+                  <h2 class="text-center poke-description">{{ get_name(pokemon) }}</h2>
                 </v-container>
               </v-card>
             </v-col>
           </v-row>
         </v-container>
-      </v-card>
     </v-container>
 
+    <v-dialog v-model="show_dialog" width="500">
+      <v-card v-if="selected_pokemon">
+        {{ get_evolutions(selected_pokemon.id) }}
+        <v-container>
+          <v-row class="d-flex flex-column justify-center align-center">
+            <v-col cols="4">
+              <img 
+                :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selected_pokemon.id}.png`" 
+                :alt="`${selected_pokemon.name}`"
+                width="100%"
+              >
+            </v-col>
+            <v-col cols="10" class="poke_name text-center">
+              <h1>{{ get_name(selected_pokemon) }}</h1>
+            </v-col>
+            <v-col cols="10" class="details d-flex justify-center flex-wrap">
+              <v-chip class="details-pokemon white--text" color="lime lighten-3" label>HP: {{ selected_pokemon.stats[0].base_stat }}<br></v-chip>
+              <v-chip class="details-pokemon white--text" color="red lighten-3" label>Attack: {{ selected_pokemon.stats[1].base_stat }}<br></v-chip>
+              <v-chip class="details-pokemon white--text" color="blue lighten-3" label>Defense: {{ selected_pokemon.stats[2].base_stat }}<br></v-chip>
+              <v-chip class="details-pokemon white--text" color="red accent-2" label>Special Attack: {{ selected_pokemon.stats[3].base_stat }}<br></v-chip>
+              <v-chip class="details-pokemon white--text" color="indigo lighten-3" label>Special Defense: {{ selected_pokemon.stats[4].base_stat }}<br></v-chip>
+              <v-chip class="details-pokemon white--text" color="light-green lighten-3" label>Speed: {{ selected_pokemon.stats[5].base_stat }}<br></v-chip>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -50,7 +81,8 @@ export default {
       pokemons: [],
       search: "",
       show_dialog: false,
-    }
+      selected_pokemon: null,
+    };
   },
 
   mounted () {
@@ -65,13 +97,24 @@ export default {
     },
     get_name(pokemon){
       return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
+    },
+    show_pokemon(id){
+      axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`).then((response) => {
+        this.selected_pokemon = response.data
+        this.show_dialog = !this.show_dialog
+      });
+    },
+    get_evolutions(id){
+      axios.get(`https://pokeapi.co/api/v2/evolution-chain/${id}`).then((response) => {
+        return response.data
+      });
     }
   },
   computed:{
     filtered_pokemons(){
       return this.pokemons.filter((item) => {
         return item.name.includes(this.search.toLowerCase())
-      })
+      });
     },
   },
 };
@@ -87,5 +130,35 @@ export default {
   background-size: cover !important;
   background-position: center;
   min-height: 100vh;
+
+  font-family: 'Open Sans', sans-serif;
+}
+
+.poke-logo {
+  max-height: 20vh;
+}
+
+theme--light.v-chip:not(.v-chip--active) {
+  background: yellow;
+  color: white;
+}
+
+.details-pokemon {
+  margin: 0 1em 1em 0;
+}
+
+.details {
+  margin-bottom: 30px;
+}
+
+
+.poke_name {
+  margin-top: -30px;
+}
+
+@media screen and (max-width: 600px) {
+  .poke-description{
+    font-size: 92%;
+  }
 }
 </style>
