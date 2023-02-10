@@ -34,7 +34,7 @@ https://pokemon-copybase.vercel.app/
 * Javascript
 
 ## *DEMO*
-![[GIF](https://github.com/Bruzaum/pokemon-copybase/blob/ace0e9efa949d70949b6d192ef1f8b4b79a78744/src/assets/Pokemon.gif)](https://pokemon-copybase.vercel.app/)
+[![GIF](https://github.com/Bruzaum/pokemon-copybase/blob/ace0e9efa949d70949b6d192ef1f8b4b79a78744/src/assets/Pokemon.gif)](https://pokemon-copybase.vercel.app/)
 
 # *Author*
 
